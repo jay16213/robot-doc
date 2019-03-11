@@ -50,8 +50,8 @@ sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool
 將 Project 複製到 udoo 的家目錄, 移完後檔案結構應如下:
 ```
 ~/catkin_ws/
-  build/                                <- ros 編譯資料夾, 可刪除
-  devel/                                <- ros 編譯資料夾, 可刪除
+  build/                                <- ros 編譯自動生成資料夾
+  devel/                                <- ros 編譯自動生成資料夾
   src/
     tracked_robot/
       tracked_robot/                    <- robot 的主程式
@@ -72,7 +72,7 @@ sudo apt-get install ros-kinetic-dynamixel-workbench-msgs
 ```
 2. Install via git
 ```bash
-cd ~/catkin_ws/src/tracked_robot/tracked_robot/
+cd ~/catkin_ws/src/tracked_robot/
 git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git -b kinetic-devel
 git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git -b kinetic-devel
 ```

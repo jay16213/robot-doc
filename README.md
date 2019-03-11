@@ -45,9 +45,9 @@
 > - 雲台馬達最耗電, 使用完務必要充飽以免下次實驗無法使用
 
 ## Environment Setup
-For Udoo, See [Udoo_setup](Udoo_setup.md)
+For Udoo, See [udoo_setup](udoo_setup.md)
 
-## 操作指令
+## 基本操作指令
 > Udoo ip: 192.168.0.197
 
 ### ssh 進 Udoo
@@ -63,7 +63,7 @@ roslaunch tracked_robot all_in_one.launch # press Ctrl+C to exit
     1. 電源是否有電且開啟
     2. 線路有無脫落
     3. 雲台馬達的 device name 是否跑掉造成程式找不到 (正確為 `/dev/ttyUSB1`)
-        - [Udoo_setup](udoo_setup.md) 中有如何修改 launch 檔的教學
+        - [udoo_setup](udoo_setup.md) 中有如何修改 launch 檔的教學
 
 - 單獨開啟行走及手臂馬達
     ```bash
@@ -78,7 +78,41 @@ roslaunch tracked_robot all_in_one.launch # press Ctrl+C to exit
 ```bash
 rosrun tracked_robot Manual_node # press e to exit
 ```
-- 手動控制鍵盤對應請參考機器人指令文件
+
+#### 手動控制鍵盤對應
+##### 雲台馬達
+| 按鍵      | 指令         |
+| --------- | ------------ |
+| 9         | 回復初始位置 |
+| o         | 上           |
+| l (小寫L) | 下           |
+| i         | 左           |
+| p         | 右           |
+
+##### 履帶馬達
+| 按鍵  | 指令                                    |
+| ----- | --------------------------------------- |
+| Up    | 前                                      |
+| Down  | 後                                      |
+| Left  | 左                                      |
+| Right | 右                                      |
+| a     | 前腳抬起                                |
+| z     | 前腳放下                                |
+| s     | 後腳抬起                                |
+| x     | 後腳放下                                |
+| space | 停止所有動作 (不包含雲台馬達)           |
+| r     | 設定行走速度 = 350                      |
+| f     | 設定行走速度 = 1000                     |
+| u     | 行走速度增加 (一次+500, 上限 30000)     |
+| y     | 行走速度減少 (一次-500, 下限 1000)      |
+| j     | 前後腳抬起 90 度 (用於一開始之手臂抬起) |
+
+> **NOTE** 遇到無法控制情形時請檢查
+> 1. 是否按到 caps lock (程式僅接受小寫字母)
+> 2. all_in_one.launch 有無噴錯誤訊息導致馬達沒有正確開啟
+> 3. ssh 是否斷線, wifi 是否正常
+>
+> 指令不要連按, 否則可能會造成 command queue 塞滿導致指令無法及時反應
 
 ## Developmant
 - See [Development](development.md)
