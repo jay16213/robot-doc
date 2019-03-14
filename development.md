@@ -7,39 +7,46 @@
   build/                                <- ros 編譯資料夾
   devel/                                <- ros 編譯資料夾
   src/
+    api_test/                           <- robot control api example(https://github.com/jay16213/Robot-Control-api)
     tracked_robot/
-      tracked_robot/                    <- robot 的主程式
-      dynamixel-workbench/              <- 雲台馬達 ros API
-      dynamixel-workbench-msgs/         <- 雲台馬達 ros API
+      tracked_robot/
+        src/                            <- 所有跟機器人控制有關的 source code
+        all_in_one.launch
+        CMakeLists.txt
+      dynamixel-workbench/              <- 雲台馬達 ros API (若透過 apt 安裝就沒有此資料夾)
+      dynamixel-workbench-msgs/         <- 雲台馬達 ros API (若透過 apt 安裝就沒有此資料夾)
       my_dynamixel_workbench_tutorial/  <- 雲台馬達 ros API
+        launch/
+          position_control.launch       <- 雲台馬達 launch 檔 (all_in_one.launch 會 include 這個 launch 檔)
       README.md
-    CMakeList.txt
+    CMakeLists.txt
 ```
 
 ## Control Robot
 此機器人共有 10 個 topic, 1個 ServiceClient, 可對各 topic 送參數來控制機器人的行走, 擺臂, 速度等.
 
-Code example 可以參考 `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
+較詳細的 Code example 可以參考 `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
 
 ### Topics
 > **NOTE** 原則上, 在 source code 中看到 robot_ 都是跟行走馬達有關, leg_ 都是跟手臂馬達有關
 
 #### 概覽
-| Topic name   | Function                 | Type                      |
-| ------------ | ------------------------ | ------------------------- |
-| robot_motion | 控制行走方向/停止        | std_msgs::Int32           |
-| robot_speed  | 設定行走速度             | std_msgs::Int32MultiArray |
-| robot_VA     | 設定行走加速度           | std_msgs::Int32MultiArray |
-| robot_MA     | 控制                     | std_msgs::Int32MultiArray |
-| robot_HO     | 控制                     | std_msgs::Int32MultiArray |
-| leg_motion   | 控制手臂抬起/放下        | std_msgs::Int32           |
-| leg_speed    | 設定手臂速度             | std_msgs::Int32MultiArray |
-| leg_VA       | 設定人手臂加速度         | std_msgs::Int32MultiArray |
-| leg_MA       | 設定手臂角度             | std_msgs::Int32MultiArray |
-| leg_HO       | 將目前手臂位置設為基準點 | std_msgs::Int32MultiArray |
+| Topic name   | Function                       | Type                      |
+| ------------ | ------------------------------ | ------------------------- |
+| robot_motion | 控制行走方向/停止              | std_msgs::Int32           |
+| robot_speed  | 設定行走速度                   | std_msgs::Int32MultiArray |
+| robot_VA     | 設定行走加速度                 | std_msgs::Int32MultiArray |
+| robot_MA     | 控制行走馬達角度 (沒用過)      | std_msgs::Int32MultiArray |
+| robot_HO     | 設定機器人基準點 (沒用過)      | std_msgs::Int32MultiArray |
+| leg_motion   | 控制手臂抬起/放下              | std_msgs::Int32           |
+| leg_speed    | 設定手臂速度                   | std_msgs::Int32MultiArray |
+| leg_VA       | 設定人手臂加速度               | std_msgs::Int32MultiArray |
+| leg_MA       | 設定手臂角度                   | std_msgs::Int32MultiArray |
+| leg_HO       | 設定手臂馬達目前所在角度之座標 | std_msgs::Int32MultiArray |
 
 #### robot_motion
 Publish 1 個 0 ~ 4 之間的數以控制行走
+
 | Value | Command    |
 | ----- | ---------- |
 | 0     | stop       |
@@ -73,8 +80,6 @@ robot_speed.data.push_back(350); // set left speed to 350
 robot_speed.data.push_back(350); // set right speed to 350
 pub.publish(robot_speed);
 ```
-
-#### robot_MA
 
 #### robot_VA
 - 左右行走馬達加速度控制, 可改變起步加速度/煞車減速度
@@ -141,31 +146,42 @@ std_msgs::Int32MultiArray leg_MA;
 
 leg_MA.data.clear();
 leg_MA.data.push_back(-26000); // set front arm to -26000
-leg_MA.data.push_back(-27000); // set front arm to -27000
+leg_MA.data.push_back(-27000); // set back arm to -27000
 pub.publish(leg_MA);
 ```
 
 #### leg_HO
-- 將手臂馬達目前所在的角度設為 0 度 (基準點)
+- 設定手臂馬達目前所在角度之座標
+- 通常用於設定基準點 (e.g 將目前角度設為 0 以做為基準點)
 ```c++
+pub = n.advertise<std_msgs::Int32MultiArray>("leg_HO", 1);
+std_msgs::Int32MultiArray leg_HO;
+leh_HO.data.clear();
 
+leg_HO.data.push_back(0); // set current position of the front arm as 0
+leg_HO.data.push_back(0); // set current position of the back arm as 0
+pub.publish(leg_HO);
 ```
 
 #### leg_VA
 - 控制手臂馬達加速度, 可控制手臂抬起/放下之加速度
 ```c++
+ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_VA", 100);
+std_msgs::Int32MultiArray leg_VA;
+leg_VA.data.clear();
 
+leg_VA.data.push_back(200); // set front arm acceleration to 200
+leg_VA.data.push_back(200); // set back arm acceleration to 200
+pub.publish(leg_VA);
 ```
-
 
 ### Service Client
 #### 概覽
-| Service       | Function                   |
-| ------------- | -------------------------- |
-| joint_command | 控制雲台馬達上下左右之角度 |
+| Service       | Function                   | Type                                   |
+| ------------- | -------------------------- | -------------------------------------- |
+| joint_command | 控制雲台馬達上下左右之角度 | dynamixel_workbench_msgs::JointCommand |
 
 #### joint_command
-- type: **dynamixel_workbench_msgs::JointCommand**
 - 控制雲台馬達上下左右之角度
 - 控制上下: top; 控制左右: bottom
 - Default:
@@ -183,18 +199,33 @@ dynamixel_workbench_msgs::JointCommand joint_command;
 int bottom = 46, top = 134;
 
 joint_command.request.unit = "rad";
-joint_command.request.id = 1;                          // control the bottom motor
+joint_command.request.id = 1;                          // id 1 control the bottom motor
 joint_command.request.goal_position = bottom * PI/180; // the bottom control left-right direction of the motor
 joint_command_client.call(joint_command);
 joint_command.request.unit = "rad";
-joint_command.request.id = 2;                          // control the top motor
+joint_command.request.id = 2;                          // id 2 control the top motor
   joint_command.request.goal_position = top * PI/180;  // the top control up-down direction of the motor
 joint_command_client.call(joint_command);
 ```
 
 ## Compile
-- 依照 ROS 的架構 Compile, 如需新增 Executable 記得改 CMakeList.txt
-- 如需引入第三方函式庫, 需依照 Cmake 的語法寫入 CMakeList.txt 中再統一用 `catkin_make` 編譯
+### 基本編譯指令
+```bash
+cd ~/catkin_ws
+catkin_make
+```
+
+#### 新增 executable
+```cmake
+add_executable(<node_name>, <filename 1> <filename 2> ...)
+target_link_libraries(<node_name>, ${catkin_LIBRARIES} <other libraries you need>)
+...
+```
+- 新增 executable, 編譯完後要執行以下指令, tab 指令自動完成才能生效
+```bash
+source ~/catkin_ws/devel/setup.bash
+```
+- ROS 架構中, 每個 package 都有自己的 CMakeLists.txt, 不要改錯檔案了 (e.g 在 tracked_robot 新增 excutable, 是要改 `~/catkin_ws/tracked_robot/tracked_robot/CMakeLists.txt`
 
 > **WARN** 在板子上修改 / 新增檔案前請先確認板子的系統時間有無跑掉, 否則很可能無法編譯成功 (modification in the future)
 >    - 確認系統時間
@@ -210,7 +241,7 @@ joint_command_client.call(joint_command);
 >    # mm: 分
 >    # YYYY: 西元年
 >    ```
->    - 更改檔案最後修改時間為目前系統時間
+>    - 更改檔案之最後修改時間為目前系統時間
 >    ```bash
 >    touch <filename>
 >    ```
