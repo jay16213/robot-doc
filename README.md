@@ -6,7 +6,7 @@
 
 ## Hardware
 ![Hardware](image/220548.jpg)
-內部零件&uarr;
+&uarr; 內部零件
 
 - 主控板(藍框): [Udoo](https://www.udoo.org/)
   - OS: Ubuntu 16.04 for udoo
@@ -54,13 +54,16 @@
 - 供給 TX2, AP
 
 > **NOTE**
-> - 12V, 24V有專用充電器, 平均充2小時就會滿 (充電器有指示燈), 兩個充電器皆無充滿自動斷電功能，所以盡量不要充過夜
-> - 12V專用充電器需用雲台馬達的轉接頭才能接上電池
+> - 12V, 24V有專用充電器, 平均充2小時就會滿 (有指示燈), 兩個充電器皆無充滿自動斷電功能，所以盡量不要充過夜
+>
+> <img src="220818.jpg" width=400/> <img src="220827.jpg" width=400/>
+>
+> - 12V專用充電器需使用轉接頭(規格同雲台馬達轉接頭)才能接上電池
 
 ## Environment Setup
 For Udoo, See [udoo_setup](udoo_setup.md)
 
-## 啟用機器人
+## 機器人開機
 ### 1. 履帶馬達電線接上
 <img src="image/220846.jpg" width=500>
 
@@ -75,22 +78,22 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 
 ### 3. 110V 行動電源開啟並接上
 
-### 4. 蓋上上蓋, 鎖上鐵製支架與螺絲
-  - 延長線, 雲台馬達的 micro USB及電池從機器人前方出線
-  - Udoo 網路線從機器人後方出線
+### 4. 蓋上上蓋, 鎖上鐵製支架
+- 將鐵製平台 (內有TX2) 放上支架後在四邊鎖入十字螺絲固定
+- 延長線, 雲台馬達的 micro USB及電池從機器人前方出線
+- Udoo 網路線從機器人後方出線
 
 <img src="image/220951.jpg" width=850/>
 &uarr; 鐵製支架 & 十字螺絲
 
 <img src="image/221533.jpg"/>
-&uarr; 上蓋完工圖 (紅框為十字螺絲鎖入處, 本圖尚未鎖入)
+&uarr; 上蓋完工圖 (紅框為螺絲鎖入處, 本圖尚未鎖入)
 
 ### 5. 接上雲台馬達之 micro USB & 電源
-
-<img src="image/220647.jpg" height=500/>&larr;雲台馬達micro USB 接孔(紅框), 電源孔(黃框)
-
 - 電源孔需要轉接頭, 平時插在 12V 電池上
 - 此模組也可放在內部, 放在外部是為了出問題時方便斷電 reset
+
+<img src="image/220647.jpg" height=500/>&larr;雲台馬達micro USB 接孔(紅框), 電源孔(黃框)
 
 ### 6. Udoo 網路線接上 AP, AP 接上電源開機
 - Dlink AP 開機須等約 3 - 5 分鐘
