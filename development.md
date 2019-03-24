@@ -133,9 +133,9 @@ pub.publish(leg_speed);
 ```
 
 #### leg_MA
-- 控制手臂角度
+- 根據手臂馬達的基準點設定手臂角度位置
 - 單位不是度
-    - n = (欲轉角度) * 4550, n 即為需要 publish 的數值
+    - n = (欲轉到角度) * 4550, n 即為需要 publish 的數值
     - 此公式為實驗量出之約略值, 可依需求自由調整
     - 如有使用到 leg_HO 來重置基準點, 請注意正負號
 
@@ -215,8 +215,9 @@ cd ~/catkin_ws
 catkin_make
 ```
 
-#### 新增 executable
+#### 新增 Executable
 ```cmake
+# in CMakeLists.txt, add this two lines and any other you need
 add_executable(<node_name>, <filename 1> <filename 2> ...)
 target_link_libraries(<node_name>, ${catkin_LIBRARIES} <other libraries you need>)
 ...
