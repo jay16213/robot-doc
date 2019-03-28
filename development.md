@@ -1,51 +1,49 @@
 # Development
-> 機器人專案架構為 ROS 的架構, 需先學習 ROS
-
 ## Source code in Udoo
 ```
 ~/catkin_ws/
-  build/                                <- ros 編譯資料夾
-  devel/                                <- ros 編譯資料夾
+  build/                                <- the folder generated after compile
+  devel/                                <- the folder generated after compile
   src/
     api_test/                           <- robot control api example(https://github.com/jay16213/Robot-Control-api)
     tracked_robot/
       tracked_robot/
-        src/                            <- 所有跟機器人控制有關的 source code
+        src/                            <- all source code for robot controlling
         all_in_one.launch
         CMakeLists.txt
-      dynamixel-workbench/              <- 雲台馬達 ros API (若透過 apt 安裝就沒有此資料夾)
-      dynamixel-workbench-msgs/         <- 雲台馬達 ros API (若透過 apt 安裝就沒有此資料夾)
-      my_dynamixel_workbench_tutorial/  <- 雲台馬達 ros API
+      dynamixel-workbench/              <- dynamixel ros API (if use apt to install this api, you will not have this folder)
+      dynamixel-workbench-msgs/         <- dynamixel ros API (if use apt to install this api, you will not have this folder)
+      my_dynamixel_workbench_tutorial/  <- dynamixel ros API
         launch/
-          position_control.launch       <- 雲台馬達 launch 檔 (all_in_one.launch 會 include 這個 launch 檔)
+          position_control.launch       <- dynamixel launch file(all_in_one.launch would include this launch file)
       README.md
     CMakeLists.txt
 ```
 
-## Control Robot
-此機器人共有 10 個 topic, 1個 ServiceClient, 可對各 topic 送參數來控制機器人的行走, 擺臂, 速度等.
+## Robot Control
+There 10 topics and 1 service client for this robot. We can publish our command to these topics to control the motion, speed, or arm angle of the robot.
 
-較詳細的 Code example 可以參考 `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
+For more detail code example, read `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
 
 ### Topics
 > **NOTE** 原則上, 在 source code 中看到 robot_ 都是跟行走馬達有關, leg_ 都是跟手臂馬達有關
 
-#### 概覽
-| Topic name   | Function                       | Type                      |
-| ------------ | ------------------------------ | ------------------------- |
-| robot_motion | 控制行走方向/停止              | std_msgs::Int32           |
-| robot_speed  | 設定行走速度                   | std_msgs::Int32MultiArray |
-| robot_VA     | 設定行走加速度                 | std_msgs::Int32MultiArray |
-| robot_MA     | 控制行走馬達角度 (沒用過)      | std_msgs::Int32MultiArray |
-| robot_HO     | 設定機器人基準點 (沒用過)      | std_msgs::Int32MultiArray |
-| leg_motion   | 控制手臂抬起/放下              | std_msgs::Int32           |
-| leg_speed    | 設定手臂速度                   | std_msgs::Int32MultiArray |
-| leg_VA       | 設定人手臂加速度               | std_msgs::Int32MultiArray |
-| leg_MA       | 設定手臂角度                   | std_msgs::Int32MultiArray |
-| leg_HO       | 設定手臂馬達目前所在角度之座標 | std_msgs::Int32MultiArray |
+#### Overview
+| Topic name   | Function                        | Type                      |
+| ------------ | ------------------------------- | ------------------------- |
+| robot_motion | control the motion of the robot | std_msgs::Int32           |
+| robot_speed  | set speed of the robot          | std_msgs::Int32MultiArray |
+| robot_VA     | set acceleration of the robot   | std_msgs::Int32MultiArray |
+| robot_MA     | 控制行走馬達角度 (沒用過)       | std_msgs::Int32MultiArray |
+| robot_HO     | 設定機器人基準點 (沒用過)       | std_msgs::Int32MultiArray |
+| leg_motion   | control the motion of arms      | std_msgs::Int32           |
+| leg_speed    | set speed of arm                | std_msgs::Int32MultiArray |
+| leg_VA       | set acceleration of arm         | std_msgs::Int32MultiArray |
+| leg_MA       | 設定手臂角度                    | std_msgs::Int32MultiArray |
+| leg_HO       | 設定手臂馬達目前所在角度之座標  | std_msgs::Int32MultiArray |
 
 #### robot_motion
-Publish 1 個 0 ~ 4 之間的數以控制行走
+Publish an integer in [0, 4] to control the motion.
 
 | Value | Command    |
 | ----- | ---------- |
@@ -97,13 +95,13 @@ pub.publish(robot_VA);
 ```
 
 #### leg_motion
-| Value | Command              |
-| ----- | -------------------- |
-| 0     | 停止所有手臂馬達動作 |
-| 1     | 前臂上               |
-| 2     | 前臂下               |
-| 3     | 後臂上               |
-| 4     | 後臂下               |
+| Value | Command                     |
+| ----- | --------------------------- |
+| 0     | Stop all the motion of arms |
+| 1     | Front arm up                |
+| 2     | Front arm down              |
+| 3     | Back arm up                 |
+| 4     | Back arm down               |
 
 ```c++
 // example
@@ -176,7 +174,7 @@ pub.publish(leg_VA);
 ```
 
 ### Service Client
-#### 概覽
+#### Overview
 | Service       | Function                   | Type                                   |
 | ------------- | -------------------------- | -------------------------------------- |
 | joint_command | 控制雲台馬達上下左右之角度 | dynamixel_workbench_msgs::JointCommand |
@@ -204,45 +202,45 @@ joint_command.request.goal_position = bottom * PI/180; // the bottom control lef
 joint_command_client.call(joint_command);
 joint_command.request.unit = "rad";
 joint_command.request.id = 2;                          // id 2 control the top motor
-  joint_command.request.goal_position = top * PI/180;  // the top control up-down direction of the motor
+joint_command.request.goal_position = top * PI/180;    // the top control up-down direction of the motor
 joint_command_client.call(joint_command);
 ```
 
 ## Compile
-### 基本編譯指令
+### Command
 ```bash
 cd ~/catkin_ws
 catkin_make
 ```
 
-#### 新增 Executable
+#### Add Executable
 ```cmake
 # in CMakeLists.txt, add this two lines and any other you need
 add_executable(<node_name>, <filename 1> <filename 2> ...)
 target_link_libraries(<node_name>, ${catkin_LIBRARIES} <other libraries you need>)
 ...
 ```
-- 新增 executable, 編譯完後要執行以下指令, tab 指令自動完成才能生效
+- after a new executable be compiled, you need to use `source` command so that you can use tab to complete the command automatically.
 ```bash
 source ~/catkin_ws/devel/setup.bash
 ```
 - ROS 架構中, 每個 package 都有自己的 CMakeLists.txt, 不要改錯檔案了 (e.g 在 tracked_robot 新增 excutable, 是要改 `~/catkin_ws/tracked_robot/tracked_robot/CMakeLists.txt`
 
-> **WARN** 在板子上修改 / 新增檔案前請先確認板子的系統時間有無跑掉, 否則很可能無法編譯成功 (modification in the future)
->    - 確認系統時間
+> **WARN** Because Udoo does not connect to the public network, it does not update the system time to the correct time every time you boot it. So before modifing/adding new files on Udoo, you need to update system time manually, otherwise the compilation would not succeed. (modification in the future)
+>    - Check system time
 >    ```bash
 >   date
 >    ```
->    - 改系統時間
+>    - Change system time
 >    ```bash
 >    sudo date MMDDhhmmYYYY
->    # MM: 月
->    # DD: 日
->    # hh: 時 (24時制)
->    # mm: 分
+>    # MM: month
+>    # DD: day
+>    # hh: hour (24-hour)
+>    # mm: minute
 >    # YYYY: 西元年
 >    ```
->    - 更改檔案之最後修改時間為目前系統時間
+>    - Change the last modification time of the file to the current system time
 >    ```bash
 >    touch <filename>
 >    ```

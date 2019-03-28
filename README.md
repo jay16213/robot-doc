@@ -106,7 +106,7 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 > Udoo ip: 192.168.0.197, username: udooer, password: udooer
 >
 > WIFI SSID: EOY_AP, password: hscc54821
-### 1. ssh 進 Udoo
+### 1. ssh to Udoo
 ```bash
 ssh udooer@<ip_address>
 ```
@@ -133,7 +133,7 @@ rosrun tracked_robot Motor_node
 roslaunch my_dynamixel_workbench_tutorial position_control.launch
 ```
 
-### 3. 開啟手動控制介面
+### 3. Open Manual control interface
 ```bash
 rosrun tracked_robot Manual_node # press e to exit
 ```
@@ -141,40 +141,40 @@ rosrun tracked_robot Manual_node # press e to exit
 - 鍵盤按下後就會有反應, 不須一直壓著按鍵
 - 機器人會持續執行目前指令直到使用者輸入新指令 (雲台馬達則是每一次轉一固定角度後就停止)
 
-#### 手動控制鍵盤對應
+#### Keyboard & Commands
 #### 雲台馬達
-| 按鍵      | 指令         |
-| --------- | ------------ |
-| 9         | 回復初始位置 |
-| o         | 上           |
-| l (小寫L) | 下           |
-| i         | 左           |
-| p         | 右           |
+| Keyboard            | Command       |
+| ------------------- | ------------- |
+| 9                   | Init position |
+| o                   | Up            |
+| l (lower case of L) | Down          |
+| i                   | Left          |
+| p                   | Right         |
 
 #### 履帶馬達
-| 按鍵         | 指令                                    |
-| ------------ | --------------------------------------- |
-| Up &uarr;    | 前                                      |
-| Down &darr;  | 後                                      |
-| Left &larr;  | 左                                      |
-| Right &rarr; | 右                                      |
-| a            | 前腳抬起                                |
-| z            | 前腳放下                                |
-| s            | 後腳抬起                                |
-| x            | 後腳放下                                |
-| space        | 停止所有動作 (不包含雲台馬達)           |
-| r            | 設定行走速度 = 350, 手臂速度 = 1000     |
-| f            | 設定行走速度 = 1000, 手臂速度 = 1000    |
-| u            | 行走速度增加 (一次+500, 上限 30000)     |
-| y            | 行走速度減少 (一次-500, 下限 1000)      |
-| j            | 前後腳往上抬起 90 度 (用於一開始之手臂抬起) |
+| Keyboard     | Command                                                                              |
+| ------------ | ------------------------------------------------------------------------------------ |
+| Up &uarr;    | Go forward                                                                           |
+| Down &darr;  | Go back                                                                              |
+| Left &larr;  | Spin left                                                                            |
+| Right &rarr; | Spin right                                                                           |
+| a            | Front arm up                                                                         |
+| z            | Front arm down                                                                       |
+| s            | Back arm up                                                                          |
+| x            | Back arm down                                                                        |
+| space        | Stop all motions (not include Dynamixel)                                             |
+| r            | Set robot speed = 350, arm speed = 1000                                              |
+| f            | Set robot speed = 1000, arm speed = 1000                                             |
+| u            | Increase robot speed (increase 500 one time, up to 30000)                            |
+| y            | Decrease robot speed (decrease 500 one time, down to 1000)                           |
+| j            | Front & back arm up to 90 degree (for initialize the angle of arms in the beginning) |
 
-> **NOTE** 遇到無法控制情形時請檢查
-> 1. 是否按到 caps lock (程式僅接受小寫字母)
-> 2. all_in_one.launch 有無噴錯誤訊息導致馬達沒有正確開啟
-> 3. ssh 是否斷線, wifi 是否正常
+> **NOTE** If you can not control the robot, please check:
+> 1. Caps lock is on (Manual_node accept lower case alphabet only)
+> 2. If there are some error messages when launch all_in_one.launch
+> 3. ssh connection and wifi is work or not
 >
-> - 指令不要連按, 否則可能會造成 command queue 塞滿導致新指令無法及時反應
+> - Don't press the keyboard too frequently, otherwise the command queue will be full and the new command will not execute in time
 > - j 按鍵只能在開啟 all_in_one.launch (or rosrun Motor_node) 前是平放狀態下才能按, 不然會轉過頭
 
 ## Developmant
