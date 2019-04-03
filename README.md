@@ -1,57 +1,53 @@
-# 爬梯機器人使用手冊
+# Tracked Robot Document
 
-本文件主要說明爬梯機器人的硬體配置及基本操作。
+This document describes the hardware configuration and basic operation of the robot.
 
-> 建議先閱讀 [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) 第一章, 才能理解指令及開發流程
+> Recommand to read [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) chapter 1 before read this document
 
 ## Hardware
 ![Hardware](image/220548.jpg)
-&uarr; 內部零件
+&uarr; Internal overview
 
-- 主控板(藍框): [Udoo](https://www.udoo.org/)
+- Main Control board (blue frame): [Udoo](https://www.udoo.org/)
   - OS: Ubuntu 16.04 for udoo
   - ROS Version: Kinetic
-  - 兩張疊一起, 上面那張閒置, 下面才是
+  - There are two Udoo: the top one is idle, the bottom one is main control board
 
-- 超音波 sensor(黃框)
+- Ultrasonic sensor (yellow frame)
   - HC-SR04
   - 注意接頭有貼白色貼紙那面朝上, 牽線小心不要把超音波的排針弄壞
 
-- 雲台馬達 (Dynamixel)
-    - 共兩顆, 分別控制上下、左右
-    - 放在機器人外部
-    - 有一條 micro USB 傳輸線透過 USB Hub 連到 Udoo 上與之連線
+- Dynamixel (雲台馬達)
+    - total 2 motors, one controls up & dowm, anothor controls left & right
+    - It connect to Udoo via a micro USB
 
     <img src="image/220636.jpg" width=150/>
 
-- 履帶馬達
-    - 共有四顆, 2顆控制手臂舉放, 2顆控制行走
+- Track motor
+    - There are total four motors, two controls arm, 2 controls walkig
     - 本文件將以手臂馬達、行走馬達分別稱之
-    - 有一條 USB 透過 USB Hub 連到 Udoo 上與之連線
+    - It connect to Udoo via a USB
 
 - Dlink AP
     - SSID: EOY_AP
     - password: hscc54821
-    - 放在機器人外部
 
-- 爬梯功能需要用到以下設備
+- For stair climbing function, you also need:
     - Nvidia TX2 (OS: Ubuntu 16.04 for TX2)
-        - 放在機器人外部
     - [ZED](https://www.stereolabs.com/)
-        - 裝在雲台馬達上
+        - on the dynamixel
 
-### 供電
-#### 4顆 12V 電池
-- 供給 2 張 Udoo, 1台AP, 1個雲台馬達
-    - 上方紅框供應 Udoo, 下方紅框供應雲台馬達
-    - 目前 1 張 Udoo 閒置, AP 吃行動電源的電, 有 2 顆閒置電池
-    - 雲台馬達需用轉接頭才能接上電池
+### Battery
+#### Four 12V battery
+- There are total 4 12V batteries, 2 are idle now
+    - one for Udoo and another for dynamixel
+    - For dynamixel, you need an adapter to connect to the battery
 
-#### 2顆 24V 電池
-- 供給行走、手臂馬達
+#### Two 24V battery
+- For track motors
 
-#### 1顆可供 110V 的行動電源(左方 enerpad)
-- 供給 TX2, AP
+#### One 110V battery (enerpad)
+- For TX2, AP
 
 > **NOTE**
 > - 12V, 24V有專用充電器, 平均充2小時就會滿 (有指示燈), 兩個充電器皆無充滿自動斷電功能，所以盡量不要充過夜
@@ -63,20 +59,20 @@
 ## Environment Setup
 For Udoo, See [udoo_setup](udoo_setup.md)
 
-## 機器人開機
+## Start Up
 ### 1. 履帶馬達電線接上
 <img src="image/220846.jpg" width=500>
 
 &uarr;履帶馬達電線 (請抓著橘色頭插拔, 電線僅用熱縮管固定, 很脆弱)
 
-### 2. 12V 電源接上 Udoo
+### 2. 12V battery connect to Udoo
 - Udoo 接上電源就會開機, 可看 USB Hub 有無亮燈判斷是否正常通電
 
 <img src="image/221213.jpg" width="500">
 
 > **WARN** Hub 只能打開有貼標籤的中間兩個開關, 其他開關必須關閉, 否則會造成 device name 跑掉而無法開啟馬達 !
 
-### 3. 110V 行動電源開啟並接上
+### 3. 110V battery switch on
 
 ### 4. 蓋上上蓋, 鎖上鐵製支架
 - 將鐵製平台 (內有TX2) 放上支架後在四邊鎖入十字螺絲固定
@@ -98,11 +94,11 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 ### 6. Udoo 網路線接上 AP, AP 接上電源開機
 - Dlink AP 開機須等約 3 - 5 分鐘
 
-### 7. TX2 開機 (如有用到)
+### 7. Boot TX2 (if need)
 
-### 8. 打開機器人後方之履帶馬達電源開關, 完成
+### 8. turn on the switch on the rear of the robot, finish.
 
-## 基本操作指令
+## Basic Operation
 > Udoo ip: 192.168.0.197, username: udooer, password: udooer
 >
 > WIFI SSID: EOY_AP, password: hscc54821
@@ -111,11 +107,11 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 ssh udooer@<ip_address>
 ```
 
-### 2. 開啟所有馬達 (履帶 + 雲台)
+### 2. Open all motors (履帶 + Dynamixel)
 ```bash
 roslaunch tracked_robot all_in_one.launch # press Ctrl+C to exit
 ```
-- 成功開啟會看到雲台馬達的型號敘述及 `Initialization is completed ...` 等輸出, 如有紅字輸出代表有錯誤, 請檢查
+- if launch successfully, you can see the model description of dynamixel and the string `Initialization is completed ...` from the cli output. If there are any error message, please check
     1. 電源是否有電且開啟
     2. 線路有無脫落
     3. 雲台馬達的 device name 是否跑掉造成程式找不到 (正確為 `/dev/ttyUSB1`)
@@ -128,7 +124,7 @@ roslaunch tracked_robot all_in_one.launch # press Ctrl+C to exit
 ```bash
 rosrun tracked_robot Motor_node
 ```
-#### 單獨開啟雲台馬達
+#### Open dynamixel only
 ```bash
 roslaunch my_dynamixel_workbench_tutorial position_control.launch
 ```
@@ -137,12 +133,12 @@ roslaunch my_dynamixel_workbench_tutorial position_control.launch
 ```bash
 rosrun tracked_robot Manual_node # press e to exit
 ```
-- 因為機器人手臂改裝過, 因此開啟後請先按 r, 會設定合適的手臂抬起速度
+- After open manual control interface, press `r` first, it will set appropriate speed for arm up/down.
 - 鍵盤按下後就會有反應, 不須一直壓著按鍵
 - 機器人會持續執行目前指令直到使用者輸入新指令 (雲台馬達則是每一次轉一固定角度後就停止)
 
 #### Keyboard & Commands
-#### 雲台馬達
+#### Dynamixel (雲台馬達)
 | Keyboard            | Command       |
 | ------------------- | ------------- |
 | 9                   | Init position |

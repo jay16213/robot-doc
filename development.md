@@ -34,12 +34,12 @@ For more detail code example, read `~/catkin_ws/src/tracked_robot/tracked_robot/
 | robot_motion | control the motion of the robot | std_msgs::Int32           |
 | robot_speed  | set speed of the robot          | std_msgs::Int32MultiArray |
 | robot_VA     | set acceleration of the robot   | std_msgs::Int32MultiArray |
-| robot_MA     | 控制行走馬達角度 (沒用過)       | std_msgs::Int32MultiArray |
-| robot_HO     | 設定機器人基準點 (沒用過)       | std_msgs::Int32MultiArray |
+| robot_MA     | 控制行走馬達角度                | std_msgs::Int32MultiArray |
+| robot_HO     | 設定機器人基準點                | std_msgs::Int32MultiArray |
 | leg_motion   | control the motion of arms      | std_msgs::Int32           |
 | leg_speed    | set speed of arm                | std_msgs::Int32MultiArray |
 | leg_VA       | set acceleration of arm         | std_msgs::Int32MultiArray |
-| leg_MA       | 設定手臂角度                    | std_msgs::Int32MultiArray |
+| leg_MA       | set the angle of arm            | std_msgs::Int32MultiArray |
 | leg_HO       | 設定手臂馬達目前所在角度之座標  | std_msgs::Int32MultiArray |
 
 #### robot_motion
@@ -66,7 +66,7 @@ pub.publish(robot_motion);  // send the command
 ```
 
 #### robot_speed
-- 左右行走馬達速度控制, 可改變行走速度
+- Control the speed of moving
 - Default: 350
 ```c++
 // example
@@ -74,6 +74,8 @@ ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("robot_speed", 100);
 std_msgs::Int32MultiArray robot_speed;
 robot_speed.data.clear();
 
+// robot_speed.data[0] is left
+// robot_speed.data[1] is right
 robot_speed.data.push_back(350); // set left speed to 350
 robot_speed.data.push_back(350); // set right speed to 350
 pub.publish(robot_speed);
@@ -81,8 +83,8 @@ pub.publish(robot_speed);
 
 #### robot_VA
 - 左右行走馬達加速度控制, 可改變起步加速度/煞車減速度
-- 預設值 200
-- 盡量設定在 200 ~ 1000 間
+- default: 200
+- range from 200 to 1000
 ```c++
 // example
 ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("robot_VA", 100);
@@ -116,7 +118,7 @@ pub.publish(leg_motion);  // send the command
 ```
 
 #### leg_speed
-- 控制手臂抬起/放下之速度
+- Control the speed of arm up/down
 - 設定 1000 即可, 不要調太快
 ```c++
 // example
@@ -180,8 +182,8 @@ pub.publish(leg_VA);
 | joint_command | 控制雲台馬達上下左右之角度 | dynamixel_workbench_msgs::JointCommand |
 
 #### joint_command
-- 控制雲台馬達上下左右之角度
-- 控制上下: top; 控制左右: bottom
+- control the angle of dynamixel
+- `top` controls up/down; `bottom` controls left/right
 - Default:
     - top: 134
     - bottom: 46
@@ -224,9 +226,9 @@ target_link_libraries(<node_name>, ${catkin_LIBRARIES} <other libraries you need
 ```bash
 source ~/catkin_ws/devel/setup.bash
 ```
-- ROS 架構中, 每個 package 都有自己的 CMakeLists.txt, 不要改錯檔案了 (e.g 在 tracked_robot 新增 excutable, 是要改 `~/catkin_ws/tracked_robot/tracked_robot/CMakeLists.txt`
+- Notice that in ROS, each package has its own CMakeLists.txt, modify the correct CMakeLists.txt (e.g in package `tracked_robot`, modify `~/catkin_ws/tracked_robot/tracked_robot/CMakeLists.txt`
 
-> **WARN** Because Udoo does not connect to the public network, it does not update the system time to the correct time every time you boot it. So before modifing/adding new files on Udoo, you need to update system time manually, otherwise the compilation would not succeed. (modification in the future)
+> **WARN** Because Udoo does not connect to the internet, it does not update the system time to the correct time every time you boot it. So before modifing/adding new files on Udoo, you need to update system time manually, otherwise the compilation would not succeed. (modification in the future)
 >    - Check system time
 >    ```bash
 >   date
@@ -238,7 +240,7 @@ source ~/catkin_ws/devel/setup.bash
 >    # DD: day
 >    # hh: hour (24-hour)
 >    # mm: minute
->    # YYYY: 西元年
+>    # YYYY: year
 >    ```
 >    - Change the last modification time of the file to the current system time
 >    ```bash
