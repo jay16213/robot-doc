@@ -1,9 +1,7 @@
-# 爬梯功能使用
+# 爬梯功能 (Stair climbing) 使用
 
-## 指令
-先進 Udoo 把 all_in_one.launch 開啟後
-
-### ssh 進 TX2
+## Command
+### ssh to TX2
 - TX2 ip: 192.168.0.150
 - username: nvidia
 - password: nvidia
@@ -14,20 +12,20 @@ vncviewer nvidia@<ip_address>:<port> # use vnc to connect tx2
 ```
 > **NOTE** 因為爬樓梯功能會需要看攝影機畫面來調參數, 故需要用 x11-forwarding (不看畫面就不需要 x11), 如是 windows 想要用 x11-forwarding 需要另外安裝軟體, 請自行 google. 也可使用 vnc viewer 連線 (port 5900)
 
-### 1. 將 Udoo 設為 master
+### 1. set Udoo as ROS master
 ```bash
 echo "ROS_MASTER_URI=http://<udoo ip>:11311" >> ~/.bashrc
 source ~/.bashrc
 ```
 - 此行指令僅須在換新版子時執行一次即可 (現有 TX2 可略過此步)
 
-### 2. Udoo 開啟 all_in_one.launch
+### 2. ssh to Udoo and open all_in_one.launch
 ```bash
 roslaunch tracked_robot all_in_one.launch
 ```
-> **NOTE** 因為第一步已設定 Udoo 是 master, 所以一定要先開 all_in_one.launch, Udoo 才會是 master
+> **NOTE** 一定要先開 Udoo 的 all_in_one.launch, roscore 才會在 Udoo 執行 (ros 定義執行 roscore 的板子為 master), 之後再打開 TX2 上的程式, TX2 會根據 ROS_MASTER_URI 尋找 master
 
-### 3. 開啟偵測樓梯程式
+### 3. Open stair_mark program
 ```bash
 roslaunch stair_climbing stair_mark.launch
 # 開啟 ZED 的 RGB 攝影機畫面
@@ -40,14 +38,14 @@ roslaunch stair_climbing stair_mark.launch depth_imgshow:=True
     2. 開啟偵測樓梯程式
 
 ### 4. 開啟爬樓梯程式
-#### 上樓梯
+#### 上樓梯 (climbing up)
 ```bash
 roslaunch stair_climbing up_stair.launch
 ```
 
-#### 下樓梯 (需使用超音波 sensor)
+#### 下樓梯 (climbing down) (need ultrasonic sensor)
 ```bash
-# 在 Udoo 開啟超音波 sensor
+# Open ultrasonic sensor in Udoo
 rosrun tracked_robot ultrasonic
 # 在 TX2 開啟下樓梯程式
 roslaunch stair_climbing down_stair.launch
@@ -160,7 +158,7 @@ roslaunch stair_climbing Demo_stair.launch
       src/
         StairDet.h
         StairDet.cpp                    <- 樓梯偵測 function 實作
-        Stair_Det.cpp                   <- 樓梯偵測主程式
+        Stair_Det.cpp                   <- 樓梯偵測主程式 (compile 後經由 stair_mark.launch 執行)
         UpStairMode.h
         UpStairMode.cpp                 <- 上樓梯 function 實作 (mode21, mode3, mode4)
         Up_Stair_Mode.cpp               <- 上樓梯主程式

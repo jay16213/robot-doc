@@ -24,8 +24,7 @@ This document describes the hardware configuration and basic operation of the ro
     <img src="image/220636.jpg" width=150/>
 
 - Track motor
-    - There are total four motors, two controls arm, 2 controls walkig
-    - 本文件將以手臂馬達、行走馬達分別稱之
+    - There are total four motors, two controls arm (arm motors), 2 controls moving (moving motors)
     - It connect to Udoo via a USB
 
 - Dlink AP
@@ -54,19 +53,19 @@ This document describes the hardware configuration and basic operation of the ro
 >
 > <img src="image/220827.jpg" width=400/> <img src="image/220818.jpg" width=400/>
 >
-> - 12V專用充電器需使用轉接頭(規格同雲台馬達轉接頭)才能接上電池
+> 12V charger need the adapter (the same as the adapter for dynamixel) to connect to the battery
 
 ## Environment Setup
 For Udoo, See [udoo_setup](udoo_setup.md)
 
 ## Start Up
-### 1. 履帶馬達電線接上
+### 1. Connect wires for track motors
 <img src="image/220846.jpg" width=500>
 
-&uarr;履帶馬達電線 (請抓著橘色頭插拔, 電線僅用熱縮管固定, 很脆弱)
+&uarr;Wires for track motors (請抓著橘色頭插拔, 電線僅用熱縮管固定, 很脆弱)
 
 ### 2. 12V battery connect to Udoo
-- Udoo 接上電源就會開機, 可看 USB Hub 有無亮燈判斷是否正常通電
+- Udoo will boot up when connected to the battery
 
 <img src="image/221213.jpg" width="500">
 
@@ -85,14 +84,14 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 <img src="image/221533.jpg"/>
 &uarr; 上蓋完工圖 (紅框為螺絲鎖入處, 本圖尚未鎖入)
 
-### 5. 接上雲台馬達之 micro USB & 電源
+### 5. Connect micro USB & power supply to dynamixel
 - 電源孔需要轉接頭, 平時插在 12V 電池上
 - 此模組也可放在內部, 放在外部是為了出問題時方便斷電 reset
 
-<img src="image/220647.jpg" height=500/>&larr;雲台馬達micro USB 接孔(紅框), 電源孔(黃框)
+<img src="image/220647.jpg" height=500/>&larr;micro USB port for dynamixel (red frame), power input port (yellow frame)
 
-### 6. Udoo 網路線接上 AP, AP 接上電源開機
-- Dlink AP 開機須等約 3 - 5 分鐘
+### 6. Udoo connect to AP, then boot AP
+- AP need 3-5 minutes to boot
 
 ### 7. Boot TX2 (if need)
 
@@ -107,20 +106,20 @@ For Udoo, See [udoo_setup](udoo_setup.md)
 ssh udooer@<ip_address>
 ```
 
-### 2. Open all motors (履帶 + Dynamixel)
+### 2. Open all motors (Track + Dynamixel)
 ```bash
 roslaunch tracked_robot all_in_one.launch # press Ctrl+C to exit
 ```
 - if launch successfully, you can see the model description of dynamixel and the string `Initialization is completed ...` from the cli output. If there are any error message, please check
-    1. 電源是否有電且開啟
-    2. 線路有無脫落
+    1. does every component be connected to its power and the battery is work fine ?
+    2. Are all lines connected ?
     3. 雲台馬達的 device name 是否跑掉造成程式找不到 (正確為 `/dev/ttyUSB1`)
-        - [udoo_setup](udoo_setup.md) 中有如何修改 launch 檔的教學
+        - [udoo_setup](udoo_setup.md) 的 *Setup Dynamixel* 章節中有如何修改 launch 檔的教學
 
 - 手臂建議在開啟/關閉前先斷電放平 (手臂會以 all_in_one.launch 開啟後所在角度作為座標 0)
-- 雲台馬達開啟前務必擺正, 否則馬達的基準點有機會跑掉
+- Dynamixel must be placed well before opening, otherwise the program may get an wrong origin coordinate for the dynamixel
 
-#### 單獨開啟行走及手臂馬達
+#### Open Track motors only
 ```bash
 rosrun tracked_robot Motor_node
 ```
@@ -134,8 +133,9 @@ roslaunch my_dynamixel_workbench_tutorial position_control.launch
 rosrun tracked_robot Manual_node # press e to exit
 ```
 - After open manual control interface, press `r` first, it will set appropriate speed for arm up/down.
+- For moving / arm command, the robot will keep doing the action until the user enters the stop command.
+- Don't press the keyboard too frequently, otherwise the command queue will be full and the new command will not execute in time
 - 鍵盤按下後就會有反應, 不須一直壓著按鍵
-- 機器人會持續執行目前指令直到使用者輸入新指令 (雲台馬達則是每一次轉一固定角度後就停止)
 
 #### Keyboard & Commands
 #### Dynamixel (雲台馬達)
@@ -147,7 +147,7 @@ rosrun tracked_robot Manual_node # press e to exit
 | i                   | Left          |
 | p                   | Right         |
 
-#### 履帶馬達
+#### Track Motors
 | Keyboard     | Command                                                                              |
 | ------------ | ------------------------------------------------------------------------------------ |
 | Up &uarr;    | Go forward                                                                           |
@@ -169,9 +169,10 @@ rosrun tracked_robot Manual_node # press e to exit
 > 1. Caps lock is on (Manual_node accept lower case alphabet only)
 > 2. If there are some error messages when launch all_in_one.launch
 > 3. ssh connection and wifi is work or not
->
-> - Don't press the keyboard too frequently, otherwise the command queue will be full and the new command will not execute in time
 > - j 按鍵只能在開啟 all_in_one.launch (or rosrun Motor_node) 前是平放狀態下才能按, 不然會轉過頭
 
 ## Developmant
 - See [Development](development.md)
+
+## Stair Climbing
+- See [Stair Climbing](stair_climbing.md)

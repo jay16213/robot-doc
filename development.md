@@ -82,7 +82,7 @@ pub.publish(robot_speed);
 ```
 
 #### robot_VA
-- 左右行走馬達加速度控制, 可改變起步加速度/煞車減速度
+- Control the acceleration of robot moving
 - default: 200
 - range from 200 to 1000
 ```c++
@@ -119,7 +119,7 @@ pub.publish(leg_motion);  // send the command
 
 #### leg_speed
 - Control the speed of arm up/down
-- 設定 1000 即可, 不要調太快
+- do not set too fast (max 1000)
 ```c++
 // example
 ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_speed", 100);
@@ -177,9 +177,9 @@ pub.publish(leg_VA);
 
 ### Service Client
 #### Overview
-| Service       | Function                   | Type                                   |
-| ------------- | -------------------------- | -------------------------------------- |
-| joint_command | 控制雲台馬達上下左右之角度 | dynamixel_workbench_msgs::JointCommand |
+| Service       | Function                       | Type                                   |
+| ------------- | ------------------------------ | -------------------------------------- |
+| joint_command | control the angle of dynamixel | dynamixel_workbench_msgs::JointCommand |
 
 #### joint_command
 - control the angle of dynamixel
