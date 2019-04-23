@@ -10,7 +10,7 @@
 ssh -X nvidia@<ip_address>           # ssh with x11-forwarding enabled
 vncviewer nvidia@<ip_address>:<port> # use vnc to connect tx2
 ```
-> **NOTE** 因為爬樓梯功能會需要看攝影機畫面來調參數, 故需要用 x11-forwarding (不看畫面就不需要 x11), 如是 windows 想要用 x11-forwarding 需要另外安裝軟體, 請自行 google. 也可使用 vnc viewer 連線 (port 5900)
+> **NOTE** 因為爬樓梯功能會需要看攝影機畫面來調參數, 故需要用 x11-forwarding (不看畫面就不需要 x11) 來取得視窗, 如是 windows 想要用 x11-forwarding 需要另外安裝軟體, 請自行 google. 也可使用 vnc viewer 連線 (port 5900)
 
 ### 1. set Udoo as ROS master
 ```bash
@@ -37,17 +37,17 @@ roslaunch stair_climbing stair_mark.launch depth_imgshow:=True
     1. 執行 `zed_wrapper zed_camera.launch` 開啟 zed
     2. 開啟偵測樓梯程式
 
-### 4. 開啟爬樓梯程式
-#### 上樓梯 (climbing up)
+### 4. Start climbing
+#### Climbing up
 ```bash
 roslaunch stair_climbing up_stair.launch
 ```
 
-#### 下樓梯 (climbing down) (need ultrasonic sensor)
+#### Climbing down (need ultrasonic sensor)
 ```bash
 # Open ultrasonic sensor in Udoo
 rosrun tracked_robot ultrasonic
-# 在 TX2 開啟下樓梯程式
+# Open down_stair.launch in TX2
 roslaunch stair_climbing down_stair.launch
 ```
 
@@ -57,14 +57,18 @@ roslaunch stair_climbing Demo_stair.launch
 ```
 
 ## 爬樓梯流程
+實際測試並調過參數的為 mode3, mode4, mode6, mode7
+。mode21 與 mode5 因為較難調整, 當初是先略過
+
 ### 上樓梯
-將過程分為三個 mode, 分別為 mode21, mode3, mode4
+將過程分為三個 mode, 分別為 mode21 (對齊), mode3 (上第一階), mode4 (爬行+登頂)
 
 #### *前置作業*
 機器人前後臂舉起 90 度, 並開到樓梯面前(攝影機須可以看到樓梯)
 
 #### mode21
 1. 攝影機低頭 15 度 (以能平視第一階階梯為原則)
+![horizontal](image/horizontal.PNG)
 
 2. 機器人一邊前進, 一邊根據攝影機畫面進行左右身體微調以對正樓梯
 
@@ -73,17 +77,20 @@ roslaunch stair_climbing Demo_stair.launch
 #### mode3
 1. 攝影機低頭 30 度 (以爬上階梯後能平視階梯的角度為原則)
 
-2. 將手臂目前角度設為基準點 0 度, 前臂下放至 60 度, 放下後前臂應該要碰到第一階樓梯
+2. 將手臂目前角度 (90度) 設為基準點 0 度 (之後敘述皆以新坐標系為準)
+![coordinate](image/coord.PNG)
 
-3. 機器人往前, 此時機器人會慢慢爬上第一階 (接下來4, 5步機器人會一直往上爬)
+3. 前臂下放至 60 度, 放下後前臂應該要碰到第一階樓梯
 
-4. 前後臂皆下放至 80 度, 此過程維持 4 秒, 此時可以看到機器人身體慢慢爬上階梯
+4. 機器人往前, 此時機器人會慢慢爬上第一階 (接下來4, 5步機器人會一直往上爬)
 
-5. 前臂下放至 95 度, 後臂下放至 110 度, 此時可以看到機器人後臂爬上階梯
+5. 前後臂皆下放至 80 度, 此過程維持 4 秒, 此時可以看到機器人身體慢慢爬上階梯
 
-6. 機器人停止
+6. 前臂下放至 95 度, 後臂下放至 110 度, 此時可以看到機器人後臂爬上階梯
 
-7. mode3結束, 此時應看到機器人已完全在階梯上
+7. 機器人停止
+
+8. mode3結束, 此時應看到機器人已完全在階梯上
 
 #### mode4 (包含登頂)
 - 機器人一直往上爬, 並根據 d4 左右微調身體 (避免走歪), 同時檢查 counter21 確認是否快爬到階梯頂端了
@@ -103,7 +110,7 @@ roslaunch stair_climbing Demo_stair.launch
 
 5. 前臂回至 60 度, 後臂回至 55 度, 此時可看到機器人逐漸將手臂回復至與地面平行
 
-6. 完成登頂, 手臂抬起
+6. 完成登頂, 回復手臂
 
 ### 下樓梯
 #### *前置作業*
@@ -116,11 +123,14 @@ roslaunch stair_climbing Demo_stair.launch
 #### mode6
 1. 向前走, 檢查超音波 sensor 資料 (機器人前端與地面距離), 若機器人前方距離地面 > 30 cm, 停下
 
-2. 將手臂目前角度設為基準點 0 度, 前臂下放至 135 度, 後臂下放至 60 度, 此時前臂會碰到階梯
+2. 將手臂目前角度設為基準點 0 度 (接下來敘述皆以新坐標系為準)
+![coordinate](image/coord.PNG)
 
-3. 往前走, 在機器人下樓梯同時前臂回至 98 度, 後臂下放至 95 度, 接著停下
+3. 前臂下放至 135 度, 後臂下放至 60 度, 此時前臂會碰到階梯
 
-4. mode6結束, 此時機器人全身在階梯上, 前後臂皆靠在階梯上
+4. 往前走, 在機器人下樓梯同時前臂回至 98 度, 後臂下放至 95 度, 接著停下
+
+5. mode6 結束, 此時機器人全身在階梯上, 前後臂皆靠在階梯上
 
 #### mode7 (包含著陸)
 1. 攝影機低15度, 以看到階梯

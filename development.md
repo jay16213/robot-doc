@@ -35,12 +35,12 @@ For more detail code example, read `~/catkin_ws/src/tracked_robot/tracked_robot/
 | robot_speed  | set speed of the robot          | std_msgs::Int32MultiArray |
 | robot_VA     | set acceleration of the robot   | std_msgs::Int32MultiArray |
 | robot_MA     | 控制行走馬達角度                | std_msgs::Int32MultiArray |
-| robot_HO     | 設定機器人基準點                | std_msgs::Int32MultiArray |
+| robot_HO     | Define home position                | std_msgs::Int32MultiArray |
 | leg_motion   | control the motion of arms      | std_msgs::Int32           |
 | leg_speed    | set speed of arm                | std_msgs::Int32MultiArray |
 | leg_VA       | set acceleration of arm         | std_msgs::Int32MultiArray |
 | leg_MA       | set the angle of arm            | std_msgs::Int32MultiArray |
-| leg_HO       | 設定手臂馬達目前所在角度之座標  | std_msgs::Int32MultiArray |
+| leg_HO       | Define home position of arm | std_msgs::Int32MultiArray |
 
 #### robot_motion
 Publish an integer in [0, 4] to control the motion.
