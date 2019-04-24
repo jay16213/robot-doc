@@ -67,7 +67,7 @@ roslaunch stair_climbing Demo_stair.launch
 機器人前後臂舉起 90 度, 並開到樓梯面前(攝影機須可以看到樓梯)
 
 #### mode21
-1. 攝影機低頭 15 度 (以能平視第一階階梯為原則)
+1. 攝影機低頭 15 度 (以能平視第一階階梯為原則) (平視是為了減少攝影機量測深度的誤差)
 ![horizontal](image/horizontal.PNG)
 
 2. 機器人一邊前進, 一邊根據攝影機畫面進行左右身體微調以對正樓梯
@@ -102,7 +102,7 @@ roslaunch stair_climbing Demo_stair.launch
 #### 登頂
 1. 調整手臂與行走馬達的加速度
 
-2. 機器人往上爬一小段, 使前臂逐漸上階梯表面, 接著停止
+2. 機器人往上爬一小段, 使前臂逐漸上到階梯頂端, 接著停止
 
 3. 攝影機回復原位
 
@@ -121,7 +121,7 @@ roslaunch stair_climbing Demo_stair.launch
 2. 與 mode21 做一樣的事
 
 #### mode6
-1. 向前走, 檢查超音波 sensor 資料 (機器人前端與地面距離), 若機器人前方距離地面 > 30 cm, 停下
+1. 向前走, 檢查超音波 sensor 資料 (機器人前端與地面距離), 若超音波回傳距離 > 30 cm, 停下
 
 2. 將手臂目前角度設為基準點 0 度 (接下來敘述皆以新坐標系為準)
 ![coordinate](image/coord.PNG)
@@ -137,7 +137,7 @@ roslaunch stair_climbing Demo_stair.launch
 
 2. 機器下樓梯, 同時檢查 d7 以確認身體有無歪掉, 若有歪掉則進行左右速度微調來調正
 
-3. 下樓梯同時檢查 d (攝影機離地面距離), 若偵測 d > 750 三次, 則可確定機器人即將下玩樓梯, 此時進入著陸階段
+3. 下樓梯同時檢查 d (攝影機離地面距離), 若偵測 d > 750 累計3次 (避免誤判), 則可確定機器人即將下完樓梯, 此時進入著陸階段
 
 #### 著陸
 1. 機器人停下
@@ -190,13 +190,16 @@ roslaunch stair_climbing Demo_stair.launch
 
 ### stair_mark.launch
 - t1
-    - 利用畫面中兩兩上下相鄰的 pixel 值, 彼此之間的深度差, 以找出物體的輪廓(edge) 線
+    - 利用畫面中兩兩上下相鄰的 pixel 值, 彼此之間的深度差, 以找出物體的輪廓(edge) 線 (圖中藍點)
     - t1 越小, 邊緣判定越寬鬆 (深度差不用很大就判定是 edge)
 - t2
 
 - t3
     - 決定樓梯寬度
-    - t3 越大, 偵測到的edge線要越長才會被判定為樓梯的一階
+    - t3 越大, 偵測到的 edge 線要越長才會被判定為樓梯的一階
+
+![stair_mark](image/stair_mark.jpg)
+
 - t4
 
 - cnt_row
@@ -243,7 +246,7 @@ roslaunch stair_climbing Demo_stair.launch
 
 - counter21
     - 攝影機與前方障礙物(階梯)的距離
-    - 若偵測到 counter21 >= 臨界值 (預設 1500) 2次, 表示機器人即將爬到樓梯頂端
+    - 若偵測到 counter21 >= 臨界值 (預設 1500) 累計 2 次, 表示機器人即將爬到樓梯頂端
 
 ### DownStairMode.cpp
 #### mode5

@@ -20,27 +20,36 @@
     CMakeLists.txt
 ```
 
+
+## Robot Control API
+If your application is written in C/C++, you may want to use [Robot Control API](control_api/) to control the robot.
+
+This API is a wrapper for topics and publishers which are used in robot controlling. With this API, you don't need to understand what and how a topic is published.
+
+For more information that how to control the robot via topics (publishers), please read the following document.
+
 ## Robot Control
 There 10 topics and 1 service client for this robot. We can publish our command to these topics to control the motion, speed, or arm angle of the robot.
 
-For more detail code example, read `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
+For more detail Code example, please read `~/catkin_ws/src/tracked_robot/tracked_robot/src/Manual_mode.cpp`
+
 
 ### Topics
 > **NOTE** 原則上, 在 source code 中看到 robot_ 都是跟行走馬達有關, leg_ 都是跟手臂馬達有關
 
 #### Overview
-| Topic name   | Function                        | Type                      |
-| ------------ | ------------------------------- | ------------------------- |
-| robot_motion | control the motion of the robot | std_msgs::Int32           |
-| robot_speed  | set speed of the robot          | std_msgs::Int32MultiArray |
-| robot_VA     | set acceleration of the robot   | std_msgs::Int32MultiArray |
-| robot_MA     | 控制行走馬達角度                | std_msgs::Int32MultiArray |
-| robot_HO     | Define home position                | std_msgs::Int32MultiArray |
-| leg_motion   | control the motion of arms      | std_msgs::Int32           |
-| leg_speed    | set speed of arm                | std_msgs::Int32MultiArray |
-| leg_VA       | set acceleration of arm         | std_msgs::Int32MultiArray |
-| leg_MA       | set the angle of arm            | std_msgs::Int32MultiArray |
-| leg_HO       | Define home position of arm | std_msgs::Int32MultiArray |
+| Topic name   | Function                                 | Type                      |
+| ------------ | ---------------------------------------- | ------------------------- |
+| robot_motion | control the motion of the robot          | std_msgs::Int32           |
+| robot_speed  | set speed of the robot                   | std_msgs::Int32MultiArray |
+| robot_VA     | set acceleration of the robot            | std_msgs::Int32MultiArray |
+| robot_MA     | set the position of moving motor         | std_msgs::Int32MultiArray |
+| robot_HO     | Define home position of the moving motor | std_msgs::Int32MultiArray |
+| leg_motion   | control the motion of arms               | std_msgs::Int32           |
+| leg_speed    | set speed of arm                         | std_msgs::Int32MultiArray |
+| leg_VA       | set acceleration of arm                  | std_msgs::Int32MultiArray |
+| leg_MA       | set the absolute position of arm         | std_msgs::Int32MultiArray |
+| leg_HO       | Define home position of arm              | std_msgs::Int32MultiArray |
 
 #### robot_motion
 Publish an integer in [0, 4] to control the motion.
@@ -67,11 +76,13 @@ pub.publish(robot_motion);  // send the command
 
 #### robot_speed
 - Control the speed of moving
-- Default: 350
+- Default: 700
+- at speed 1000, it costs about 7 seconds to move 1 meter
 ```c++
 // example
 ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("robot_speed", 100);
 std_msgs::Int32MultiArray robot_speed;
+// clear old data before using
 robot_speed.data.clear();
 
 // robot_speed.data[0] is left
@@ -119,24 +130,40 @@ pub.publish(leg_motion);  // send the command
 
 #### leg_speed
 - Control the speed of arm up/down
-- do not set too fast (max 1000)
+- default: 1000
+- do not set too fast
 ```c++
 // example
 ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_speed", 100);
 
 std_msgs::Int32MultiArray leg_speed;
+// clear old data before using
 leg_speed.data.clear();
 
-leg_speed.data.push_back(1000); // set front arm speed to 1000
+// leg_speed.data[0] is back
+// leg_speed.data[1] is front
 leg_speed.data.push_back(1000); // set back arm speed to 1000
+leg_speed.data.push_back(1000); // set front arm speed to 1000
 pub.publish(leg_speed);
 ```
 
+#### leg_VA
+- Control the acceleration of arm motors
+```c++
+ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_VA", 100);
+std_msgs::Int32MultiArray leg_VA;
+leg_VA.data.clear();
+
+leg_VA.data.push_back(200); // set back arm acceleration to 200
+leg_VA.data.push_back(200); // set front arm acceleration to 200
+pub.publish(leg_VA);
+```
+
 #### leg_MA
-- 根據手臂馬達的基準點設定手臂角度位置
-- 單位不是度
-    - n = (欲轉到角度) * 4550, n 即為需要 publish 的數值
-    - 此公式為實驗量出之約略值, 可依需求自由調整
+- Set the absolute position of arm
+- Formula
+    - `n = (target_position) * 4550`. **target_position** is degree and  **n** is the value you need to publish
+    - This formula is an approximate result obtained by experiment and can   be adjusted freely if need.
     - 如有使用到 leg_HO 來重置基準點, 請注意正負號
 
 ```c++
@@ -151,28 +178,15 @@ pub.publish(leg_MA);
 ```
 
 #### leg_HO
-- 設定手臂馬達目前所在角度之座標
-- 通常用於設定基準點 (e.g 將目前角度設為 0 以做為基準點)
+- Set the current position of arm as home position
 ```c++
 pub = n.advertise<std_msgs::Int32MultiArray>("leg_HO", 1);
 std_msgs::Int32MultiArray leg_HO;
 leh_HO.data.clear();
 
-leg_HO.data.push_back(0); // set current position of the front arm as 0
-leg_HO.data.push_back(0); // set current position of the back arm as 0
+leg_HO.data.push_back(0); // set current position of the front arm as 0 (home)
+leg_HO.data.push_back(0); // set current position of the back arm as 0 (home)
 pub.publish(leg_HO);
-```
-
-#### leg_VA
-- 控制手臂馬達加速度, 可控制手臂抬起/放下之加速度
-```c++
-ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_VA", 100);
-std_msgs::Int32MultiArray leg_VA;
-leg_VA.data.clear();
-
-leg_VA.data.push_back(200); // set front arm acceleration to 200
-leg_VA.data.push_back(200); // set back arm acceleration to 200
-pub.publish(leg_VA);
 ```
 
 ### Service Client

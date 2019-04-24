@@ -132,7 +132,6 @@ roslaunch my_dynamixel_workbench_tutorial position_control.launch
 ```bash
 rosrun tracked_robot Manual_node # press e to exit
 ```
-- After open manual control interface, press `r` first, it will set appropriate speed for arm up/down.
 - For moving / arm command, the robot will keep doing the action until the user enters the stop command.
 - Don't press the keyboard too frequently, otherwise the command queue will be full and the new command will not execute in time
 - 鍵盤按下後就會有反應, 不須一直壓著按鍵
