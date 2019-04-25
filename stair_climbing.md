@@ -201,17 +201,20 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 - t1
     - 利用畫面中兩兩上下相鄰的 pixel 值, 彼此之間的深度差, 以找出物體的輪廓(edge) 線 (圖中藍點)
     - t1 越小, 邊緣判定越寬鬆 (深度差不用很大就判定是 edge)
+    - 與 t2 搭配使用
 - t2
-
+    - 與 t1 相同功能, 若 `t1 < 上下相鄰之兩pixel的深度差 < t2`, 則會在圖中標出藍點
 - t3
-    - 決定樓梯寬度
-    - t3 越大, 偵測到的 edge 線要越長才會被判定為樓梯的一階
+    - 決定欲偵測的樓梯寬度
+    - t3 越大, 偵測到的 edge 要越長 (藍點形成的橫線) 才會被判定為樓梯的一階
 
 ![stair_mark](image/stair_mark.jpg)
 
 - t4
+    - 功能同 t3, 僅使用在 mode 4
 
 - cnt_row
+  - 決定樓梯的縱深
 
 - rgb_imgshow
     - True: 打開攝影機 RGB 畫面 (需 ssh with x11-forwarding or vnc)
