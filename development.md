@@ -5,7 +5,7 @@
   build/                                <- the folder generated after compile
   devel/                                <- the folder generated after compile
   src/
-    api_test/                           <- robot control api example(https://github.com/jay16213/Robot-Control-api)
+    api_test/                           <- robot control api example
     tracked_robot/
       tracked_robot/
         src/                            <- all source code for robot controlling
@@ -15,7 +15,7 @@
       dynamixel-workbench-msgs/         <- dynamixel ros API (if use apt to install this api, you will not have this folder)
       my_dynamixel_workbench_tutorial/  <- dynamixel ros API
         launch/
-          position_control.launch       <- dynamixel launch file(all_in_one.launch would include this launch file)
+          position_control.launch       <- dynamixel launch file (all_in_one.launch would include this launch file)
       README.md
     CMakeLists.txt
 ```
@@ -38,18 +38,18 @@ For more detail Code example, please read `~/catkin_ws/src/tracked_robot/tracked
 > **NOTE** 原則上, 在 source code 中看到 robot_ 都是跟行走馬達有關, leg_ 都是跟手臂馬達有關
 
 #### Overview
-| Topic name   | Function                                 | Type                      |
-| ------------ | ---------------------------------------- | ------------------------- |
-| robot_motion | control the motion of the robot          | std_msgs::Int32           |
-| robot_speed  | set speed of the robot                   | std_msgs::Int32MultiArray |
-| robot_VA     | set acceleration of the robot            | std_msgs::Int32MultiArray |
-| robot_MA     | set the position of moving motor         | std_msgs::Int32MultiArray |
-| robot_HO     | Define home position of the moving motor | std_msgs::Int32MultiArray |
-| leg_motion   | control the motion of arms               | std_msgs::Int32           |
-| leg_speed    | set speed of arm                         | std_msgs::Int32MultiArray |
-| leg_VA       | set acceleration of arm                  | std_msgs::Int32MultiArray |
-| leg_MA       | set the absolute position of arm         | std_msgs::Int32MultiArray |
-| leg_HO       | Define home position of arm              | std_msgs::Int32MultiArray |
+| Topic name   | Function                                  | Type                      |
+| ------------ | ----------------------------------------- | ------------------------- |
+| robot_motion | control the motion of the robot           | std_msgs::Int32           |
+| robot_speed  | set speed of the robot                    | std_msgs::Int32MultiArray |
+| robot_VA     | set acceleration of the robot             | std_msgs::Int32MultiArray |
+| robot_HO     | Define the origin of the moving motor     | std_msgs::Int32MultiArray |
+| robot_MA     | set the absolute position of moving motor | std_msgs::Int32MultiArray |
+| leg_motion   | control the motion of arms                | std_msgs::Int32           |
+| leg_speed    | set speed of arm                          | std_msgs::Int32MultiArray |
+| leg_VA       | set acceleration of arm                   | std_msgs::Int32MultiArray |
+| leg_HO       | Define the origin of arm                  | std_msgs::Int32MultiArray |
+| leg_MA       | set the absolute position (angle) of arm  | std_msgs::Int32MultiArray |
 
 #### robot_motion
 Publish an integer in [0, 4] to control the motion.
@@ -159,26 +159,9 @@ leg_VA.data.push_back(200); // set front arm acceleration to 200
 pub.publish(leg_VA);
 ```
 
-#### leg_MA
-- Set the absolute position of arm
-- Formula
-    - `n = (target_position) * 4550`. **target_position** is degree and  **n** is the value you need to publish
-    - This formula is an approximate result obtained by experiment and can   be adjusted freely if need.
-    - 如有使用到 leg_HO 來重置基準點, 請注意正負號
-
-```c++
-//example
-ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_MA", 100);
-std_msgs::Int32MultiArray leg_MA;
-
-leg_MA.data.clear();
-leg_MA.data.push_back(-26000); // set front arm to -26000
-leg_MA.data.push_back(-27000); // set back arm to -27000
-pub.publish(leg_MA);
-```
-
 #### leg_HO
-- Set the current position of arm as home position
+- Set the current angle (degree) of arm as origin
+- Notice that when opening track motors, it will set the current angle of arm as origin automatically
 ```c++
 pub = n.advertise<std_msgs::Int32MultiArray>("leg_HO", 1);
 std_msgs::Int32MultiArray leg_HO;
@@ -187,6 +170,25 @@ leh_HO.data.clear();
 leg_HO.data.push_back(0); // set current position of the front arm as 0 (home)
 leg_HO.data.push_back(0); // set current position of the back arm as 0 (home)
 pub.publish(leg_HO);
+```
+
+#### leg_MA
+- Set the absolute angle of arm
+- Formula
+    - `n = (target_position) * 4550`. **target_position** is degree and  **n** is the value you need to publish
+    - This formula is an approximate model obtained by experiment and can be adjusted freely if need
+
+![arm_angle](image/arm_angle.PNG)
+
+```c++
+//example
+ros::Publisher pub = n.advertise<std_msgs::Int32MultiArray>("leg_MA", 100);
+std_msgs::Int32MultiArray leg_MA;
+
+leg_MA.data.clear();
+leg_MA.data.push_back(-204750); // set front arm to -204750 (-45 * 4550)
+leg_MA.data.push_back(-204750); // set back arm to -204750 (-45 * 4550)
+pub.publish(leg_MA);
 ```
 
 ### Service Client
@@ -199,8 +201,8 @@ pub.publish(leg_HO);
 - control the angle of dynamixel
 - `top` controls up/down; `bottom` controls left/right
 - Default:
-    - top: 134
-    - bottom: 46
+    - top: 134 (increase top -> dynamixel turn up)
+    - bottom: 46 (increase bottom -> dynamixel turn left)
 
 ```c++
 //example

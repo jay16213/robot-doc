@@ -10,7 +10,7 @@
 ssh -X nvidia@<ip_address>           # ssh with x11-forwarding enabled
 vncviewer nvidia@<ip_address>:<port> # use vnc to connect tx2
 ```
-> **NOTE** 因為爬樓梯功能會需要看攝影機畫面來調參數, 故需要用 x11-forwarding (不看畫面就不需要 x11) 來取得視窗, 如是 windows 想要用 x11-forwarding 需要另外安裝軟體, 請自行 google. 也可使用 vnc viewer 連線 (port 5900)
+> **NOTE** 因為爬樓梯功能會需要看攝影機畫面來調參數, 故需要用 x11-forwarding (不看畫面就不需要 x11) 來取得視窗, 如是 windows 想要用 x11-forwarding 需要另外安裝軟體, 請自行 google. 也可使用 [vnc viewer](https://www.realvnc.com/en/connect/download/viewer/) 連線 (port 5900)
 
 ### 1. set Udoo as ROS master
 ```bash
@@ -57,17 +57,24 @@ roslaunch stair_climbing Demo_stair.launch
 ```
 
 ## 爬樓梯流程
-實際測試並調過參數的為 mode3, mode4, mode6, mode7
-。mode21 與 mode5 因為較難調整, 當初是先略過
+實際測試並調過參數的為 mode3, mode4, mode6, mode7.
+
+mode21 與 mode5 因為較難調整, 當初是先略過
+
+- Demo 影片
+  - [上樓梯1](https://drive.google.com/file/d/1ZFjm1R34lBXIDVLbSd2djwWZOhWM9cs4/view?usp=sharing)
+  - [上樓梯2](https://drive.google.com/open?id=1A4jCe_R7Z-p7o7Zie8noPzfgJuNQW0g6)
+  - [下樓梯](https://drive.google.com/open?id=1DtSmCWZRmcT5ncH1BS5PuqCmAlnyztL1)
 
 ### 上樓梯
-將過程分為三個 mode, 分別為 mode21 (對齊), mode3 (上第一階), mode4 (爬行+登頂)
+將過程分為三個 mode, 分別為 mode21 (對齊), mode3 (上第一階), mode4 (上樓+登頂)
 
 #### *前置作業*
 機器人前後臂舉起 90 度, 並開到樓梯面前(攝影機須可以看到樓梯)
 
 #### mode21
 1. 攝影機低頭 15 度 (以能平視第一階階梯為原則) (平視是為了減少攝影機量測深度的誤差)
+> 攝影機鏡頭離地高度約 40 cm
 ![horizontal](image/horizontal.PNG)
 
 2. 機器人一邊前進, 一邊根據攝影機畫面進行左右身體微調以對正樓梯
@@ -113,8 +120,10 @@ roslaunch stair_climbing Demo_stair.launch
 6. 完成登頂, 回復手臂
 
 ### 下樓梯
+將過程分為三個 mode, 分別為 mode5 (對齊), mode6 (上第一階), mode7 (下樓+著陸)
+
 #### *前置作業*
-開啟超音波 sensor, 前後臂舉起 90 度
+開啟超音波 sensor, 前後臂舉起與地面垂直
 
 #### mode5
 1. 攝影機低頭 30 度
@@ -142,11 +151,11 @@ roslaunch stair_climbing Demo_stair.launch
 #### 著陸
 1. 機器人停下
 
-2. 將手臂目前角度設為基準點 0 度
+2. 將手臂目前角度設為基準點 0 度 (回到原坐標系)
 
 3. 機器人往前, 同時將後臂往上抬起至 90 度, 前臂不動 (此步驟約 5 - 7 秒)
 
-4. 前臂往上抬起 90 度, 機器人繼續往前
+4. 前臂往上抬起至 90 度, 機器人繼續往前
 
 5. 攝影機歸位, 結束
 

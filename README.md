@@ -162,13 +162,13 @@ rosrun tracked_robot Manual_node # press e to exit
 | f            | Set robot speed = 1000, arm speed = 1000                                             |
 | u            | Increase robot speed (increase 500 one time, up to 30000)                            |
 | y            | Decrease robot speed (decrease 500 one time, down to 1000)                           |
-| j            | Front & back arm up to 90 degree (for initialize the angle of arms in the beginning) |
+| j            | Front & back arm raise up 90 degree (for initialize the angle of arms in the beginning) |
 
 > **NOTE** If you can not control the robot, please check:
 > 1. Caps lock is on (Manual_node accept lower case alphabet only)
 > 2. If there are some error messages when launch all_in_one.launch
 > 3. ssh connection and wifi is work or not
-> - j 按鍵只能在開啟 all_in_one.launch (or rosrun Motor_node) 前是平放狀態下才能按, 不然會轉過頭
+> - j 按鍵只能在開啟 all_in_one.launch (or rosrun Motor_node) 前手臂是平放狀態下才能按, 不然會轉過頭
 
 ## Developmant
 - See [Development](development.md)
