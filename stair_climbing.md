@@ -19,13 +19,13 @@ source ~/.bashrc
 ```
 - 此行指令僅須在換新版子時執行一次即可 (現有 TX2 可略過此步)
 
-### 2. ssh to Udoo and open all_in_one.launch
+### 2. ssh to Udoo and run all_in_one.launch
 ```bash
 roslaunch tracked_robot all_in_one.launch
 ```
 > **NOTE** 一定要先開 Udoo 的 all_in_one.launch, roscore 才會在 Udoo 執行 (ros 定義執行 roscore 的板子為 master), 之後再打開 TX2 上的程式, TX2 會根據 ROS_MASTER_URI 尋找 master
 
-### 3. Open stair_mark program
+### 3. Run stair_mark.launch (For stair detection feature)
 ```bash
 roslaunch stair_climbing stair_mark.launch
 # 開啟 ZED 的 RGB 攝影機畫面
@@ -34,8 +34,8 @@ roslaunch stair_climbing stair_mark.launch rgb_imgshow:=True
 roslaunch stair_climbing stair_mark.launch depth_imgshow:=True
 ```
 - `stair_mark.launch` 會做兩件事
-    1. 執行 `zed_wrapper zed_camera.launch` 開啟 zed
-    2. 開啟偵測樓梯程式
+    1. 執行 `zed_wrapper zed.launch` 開啟 zed
+    2. 開啟偵測樓梯程式 (Stair_Det)
 
 ### 4. Start climbing
 #### Climbing up
@@ -45,9 +45,9 @@ roslaunch stair_climbing up_stair.launch
 
 #### Climbing down (need ultrasonic sensor)
 ```bash
-# Open ultrasonic sensor in Udoo
+# Run ultrasonic sensor in Udoo
 rosrun tracked_robot ultrasonic
-# Open down_stair.launch in TX2
+# Run down_stair.launch in TX2
 roslaunch stair_climbing down_stair.launch
 ```
 
@@ -73,6 +73,8 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 機器人前後臂舉起 90 度, 並開到樓梯面前(攝影機須可以看到樓梯)
 
 #### mode21
+> 目標: 使機器人身體能對正階梯並保持適當距離
+
 1. 攝影機低頭 15 度 (以能平視第一階階梯為原則) (平視是為了減少攝影機量測深度的誤差)
 > 攝影機鏡頭離地高度約 40 cm
 ![horizontal](image/horizontal.PNG)
@@ -82,7 +84,9 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 3. 身體對正樓梯後, 機器人會往前直到合適的距離為止
 
 #### mode3
-1. 攝影機低頭 30 度 (以爬上階梯後能平視階梯的角度為原則)
+> 目標: 爬上第一階
+
+1. 攝影機低頭 15 度 (以爬上階梯後能平視階梯的角度為原則)
 
 2. 將手臂目前角度 (90度) 設為基準點 0 度 (之後敘述皆以新坐標系為準)
 ![coordinate](image/coord.PNG)
@@ -100,6 +104,9 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 8. mode3結束, 此時應看到機器人已完全在階梯上
 
 #### mode4 (包含登頂)
+> 目標: 爬樓梯 & 登頂
+- 攝影機低頭 40 度 (以可以盡量平視階梯為主)
+
 - 機器人一直往上爬, 並根據 d4 左右微調身體 (避免走歪), 同時檢查 counter21 確認是否快爬到階梯頂端了
 
 - 若偵測到快爬到樓梯頂端, 會印出 `---Ready go to the top!---` 訊息
@@ -126,11 +133,12 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 開啟超音波 sensor, 前後臂舉起與地面垂直
 
 #### mode5
-1. 攝影機低頭 30 度
-2. 與 mode21 做一樣的事
+- 與 mode21 做一樣的事
+> 下樓梯主要是靠超音波資料尋找樓梯位置, 若能使用其他方式 (如室內定位等) 使機器人對正樓梯, mode5 非必要執行
 
 #### mode6
-1. 向前走, 檢查超音波 sensor 資料 (機器人前端與地面距離), 若超音波回傳距離 > 30 cm, 停下
+> 目標: 讓機器人下到第一階
+1. 向前走, 檢查超音波 sensor 資料 (機器人前端與地面距離), 若超音波回傳距離 > 30 cm, 表示已到樓梯邊緣, 停下
 
 2. 將手臂目前角度設為基準點 0 度 (接下來敘述皆以新坐標系為準)
 ![coordinate](image/coord.PNG)
@@ -142,11 +150,11 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 5. mode6 結束, 此時機器人全身在階梯上, 前後臂皆靠在階梯上
 
 #### mode7 (包含著陸)
-1. 攝影機低15度, 以看到階梯
+> 目標: 下樓梯 & 著陸
 
-2. 機器下樓梯, 同時檢查 d7 以確認身體有無歪掉, 若有歪掉則進行左右速度微調來調正
+1. 機器下樓梯, 同時檢查 d7 以確認身體有無歪掉, 若有歪掉則進行左右速度微調來調正
 
-3. 下樓梯同時檢查 d (攝影機離地面距離), 若偵測 d > 750 累計3次 (避免誤判), 則可確定機器人即將下完樓梯, 此時進入著陸階段
+2. 下樓梯同時檢查 d (攝影機離地面距離), 若偵測 d > 750 累計3次 (避免誤判), 則可確定機器人即將下完樓梯, 此時進入著陸階段
 
 #### 著陸
 1. 機器人停下
@@ -278,3 +286,25 @@ mode21 與 mode5 因為較難調整, 當初是先略過
 
 - d
     - 攝影機距離地面的距離
+
+## Troubleshooting
+- reference
+  - [ZED with ROS documentation](https://www.stereolabs.com/docs/ros/)
+  - [ZED troubleshooting](https://support.stereolabs.com/hc/en-us/categories/200856185-Troubleshooting)
+
+### `low usb bandwidth` warning when launching zed ?
+
+Please remove any USB hub, and plug the ZED directly into the computer (TX2).
+
+If you still can not solve the problem, please read [How to fix USB 3.0 bandwidth and connection issues](https://support.stereolabs.com/hc/en-us/articles/207635225-How-to-fix-USB-3-0-bandwidth-and-connection-issues)
+
+### How to check if my zed is fine ?
+ZED provides a series tools to test each feature is working or not. Go to `/usr/local/zed/tools` to use them.
+
+For example, run `ZED Diagnostic` will check your current zed sdk version and other system information to confirm that your camera is fine.
+
+#### Run `zed.launch` to Open ZED via ROS
+```bash
+roslaunch zed_wrapper zed.launch
+```
+

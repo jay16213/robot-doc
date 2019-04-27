@@ -34,7 +34,7 @@
 #define DEFAULT
 class Robot {
 public:
-    Robot(int argc, char **argv, const char* node_name);
+    Robot(ros::NodeHandle &n);
     ~Robot();
 
     void move(int motion);
@@ -44,7 +44,7 @@ public:
     void arm(int motion);
     void setArmSpeed(int front_speed, int back_speed);
     void setArmAcceleration(int front_acc, int back_acc);
-    void armAngle(int front, int back);
+    void setArmAngle(int front, int back);
     void setArmHomePosition();
 
     void dynamixelInit();

@@ -12,8 +12,11 @@ include "robot.h"
 
 int main(argc, char **argv) {
 
-    // declare a Robot instance
-    Robot robot(argc, argv, "your_node_name");
+    ros::init(argc, argv, "your_node_name");
+    ros::NodeHandle n;
+
+    // declare a Robot instance, need to pass NodeHandle to the constructor for initialization
+    Robot robot(n);
 
     // do something
 }
@@ -58,7 +61,7 @@ robot.setArmSpeed(1000, 1000);
 robot.setArmAcceleration(500, 500);
 ```
 
-### void armAngle(int front, int back)
+### void setArmAngle(int front, int back)
 - front, back is in degree
 ```c++
 robot.armAngle(45, 45);

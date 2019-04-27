@@ -1,9 +1,7 @@
 #include "robot.h"
 
-Robot::Robot(int argc, char **argv, const char *node_name)
+Robot::Robot(ros::NodeHandle &n)
 {
-    ros::init(argc, argv, node_name);
-    ros::NodeHandle n;
     pub_rob_speed = n.advertise<std_msgs::Int32MultiArray>("robot_speed", 100);
 	pub_leg_speed = n.advertise<std_msgs::Int32MultiArray>("leg_speed", 100);
 	pub_robot_MA = n.advertise<std_msgs::Int32MultiArray>("robot_MA", 100);
@@ -98,7 +96,7 @@ void Robot::setArmAcceleration(int front_acc, int back_acc)
     return;
 }
 
-void Robot::armAngle(int front, int back)
+void Robot::setArmAngle(int front, int back)
 {
     leg_MA.data.clear();
     leg_MA.data.push_back(front * DEGREE_BASE);

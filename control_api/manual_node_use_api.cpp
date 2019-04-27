@@ -11,7 +11,7 @@
 
 #include "robot.h"
 
-#define NODE_NAME "api_node"
+#define NODE_NAME "Manual_node_use_api"
 #define HELP_MSG "==========================\n"                           \
                  "Key usage:\n"                                           \
                  " h: Show this message\n"                                \
@@ -57,8 +57,9 @@
 int main(int argc, char **argv)
 {
     // init the ros node
-    Robot robot(argc, argv, NODE_NAME);
-    // rosInit(argc, argv, "Track_node");
+    ros::init(argc, argv, NODE_NAME);
+    ros::NodeHandle n;
+    Robot robot(n);
 
     // set the frequency of the while loop to 100hz
     // avoid to publish the commands too frequently
@@ -115,7 +116,7 @@ int main(int argc, char **argv)
                 scanf("%d", &front_angle);
                 printf("back (degrees): ");
                 scanf("%d", &back_angle);
-                robot.armAngle(front_angle, back_angle);
+                robot.setArmAngle(front_angle, back_angle);
                 break;
             case 't':
                 printf("Set move speed:\n");

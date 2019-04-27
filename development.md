@@ -176,7 +176,9 @@ pub.publish(leg_HO);
 - Set the absolute angle of arm
 - Formula
     - `n = (target_position) * 4550`. **target_position** is degree and  **n** is the value you need to publish
-    - This formula is an approximate model obtained by experiment and can be adjusted freely if need
+    - This formula is an approximate model obtained by experiment
+
+The following picture shows that the example coordinate system of arm. The origin can be changed by publishing leg_HO
 
 ![arm_angle](image/arm_angle.PNG)
 
