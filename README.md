@@ -4,6 +4,14 @@ This document describes the hardware configuration and basic operation of the ro
 
 > Recommand to read [ROS Tutorials](http://wiki.ros.org/ROS/Tutorials) chapter 1 before read this document
 
+- Index of the documentation
+  - Hardware
+  - [Udoo Environment Setup](udoo_setup.md)
+  - Start Up
+  - Basic Operation
+  - [Development](development.md)
+  - [Stair Climbing](stair_climbing.md)
+
 ## Hardware
 ![Hardware](image/220548.jpg)
 &uarr; Internal overview
@@ -22,6 +30,10 @@ This document describes the hardware configuration and basic operation of the ro
     - It connect to Udoo via a micro USB
 
     <img src="image/220636.jpg" width=150/>
+
+    - 如果需要拆卸馬達, 下圖紅線部分務必對齊, 否則馬達基準點會跑掉
+
+    <img src="image/dy_red.jpg" width=150/>
 
 - Track motor
     - There are total four motors, two controls arm (arm motors), 2 controls moving (moving motors)
@@ -49,14 +61,14 @@ This document describes the hardware configuration and basic operation of the ro
 - For TX2, AP
 
 > **NOTE**
-> - 12V, 24V有專用充電器, 平均充2小時就會滿 (有指示燈), 兩個充電器皆無充滿自動斷電功能，所以盡量不要充過夜
+> - There are 2 chargers, one for 12V and one for 24V. It cost about 2 hours to charge full. These chargers will keep charging after the battery is full, so do not overcharge.
 >
 > <img src="image/220827.jpg" width=400/> <img src="image/220818.jpg" width=400/>
 >
 > 12V charger need the adapter (the same as the adapter for dynamixel) to connect to the battery
 
-## Environment Setup
-For Udoo, See [udoo_setup](udoo_setup.md)
+## Udoo Environment Setup
+See [udoo_setup](udoo_setup.md)
 
 ## Start Up
 ### 1. Connect wires for track motors

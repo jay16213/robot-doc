@@ -131,6 +131,7 @@ pub.publish(leg_motion);  // send the command
 #### leg_speed
 - Control the speed of arm up/down
 - default: 1000
+  - at speed 1000, it costs about 12 seconds to raise up 90 degrees
 - do not set too fast
 ```c++
 // example
